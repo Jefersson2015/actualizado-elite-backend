@@ -1,0 +1,90 @@
+-- Crear base de datos
+CREATE DATABASE IF NOT EXISTS elite_db;
+USE elite_db;
+
+-- Tabla CLIENTE
+CREATE TABLE cliente (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    teléfono VARCHAR(10) NOT NULL,
+    correo VARCHAR(100) UNIQUE,
+    dirección VARCHAR(100),
+    fecha_registro DATE
+);
+
+-- Tabla USUARIO
+CREATE TABLE usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(20) NOT NULL,
+    id_cliente INT,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
+);
+
+-- Tabla PRODUCTO
+CREATE TABLE producto (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripción TEXT,
+    precio DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL,
+    imagen VARCHAR(200)
+);
+
+-- Tabla CARRITO
+CREATE TABLE carrito (
+    id_carrito INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT,
+    fecha_creacion DATE,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
+);
+
+-- Tabla CARRITO_DETALLE
+CREATE TABLE carrito_detalle (
+    id_detalle INT AUTO_INCREMENT PRIMARY KEY,
+    id_carrito INT,
+    id_producto INT,
+    cantidad INT NOT NULL,
+    subtotal DECIMAL(10,2),
+    FOREIGN KEY (id_carrito) REFERENCES carrito(id_carrito),
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
+);
+
+-- Tabla PEDIDO
+CREATE TABLE pedido (
+    id_pedido INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT,
+    fecha DATE,
+    total DECIMAL(10,2),
+    estado VARCHAR(20),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
+);
+
+-- Tabla PEDIDO_DETALLE
+CREATE TABLE pedido_detalle (
+    id_pedido_detalle INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    id_producto INT,
+    cantidad INT,
+    subtotal DECIMAL(10,2),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
+);
+
+-- Insertar datos de prueba
+INSERT INTO cliente (nombre, teléfono, correo, dirección, fecha_registro) VALUES
+('Juan Pérez', '3001234567', 'juan@email.com', 'Calle 123 Bogotá', CURDATE()),
+('María García', '3109876543', 'maria@email.com', 'Carrera 45 Medellín', CURDATE());
+
+INSERT INTO usuario (username, password, rol, id_cliente) VALUES
+('admin', 'admin123', 'admin', NULL),
+('juanp', 'juan123', 'cliente', 1),
+('mariag', 'maria123', 'cliente', 2);
+
+INSERT INTO producto (nombre, descripción, precio, stock, imagen) VALUES
+('Zapatillas Deportivas Nike', 'Zapatillas cómodas para correr', 250000.00, 50, 'nike_deportivas.jpg'),
+('Zapatos Formales Oxford', 'Zapatos elegantes para oficina', 180000.00, 30, 'oxford_formales.jpg'),
+('Sandalias Playeras', 'Sandalias resistentes al agua', 75000.00, 100, 'sandalias_playera.jpg'),
+('Botas de Cuero', 'Botas duraderas para trabajo', 320000.00, 25, 'botas_cuero.jpg'),
+('Tenis Casuales Adidas', 'Tenis cómodos para uso diario', 220000.00, 40, 'adidas_casuales.jpg');

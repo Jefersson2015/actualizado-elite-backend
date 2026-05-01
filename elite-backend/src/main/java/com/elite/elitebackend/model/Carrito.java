@@ -1,23 +1,24 @@
 package com.elite.elitebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "carrito")
-
 public class Carrito {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_cliente")
-    private Cliente cliente;
+    @Column(name = "id_cliente", nullable = false)
+    @JsonProperty("idCliente")
+    private Integer idCliente;
 
-    @Temporal(TemporalType.DATE)
-    private Date fechaCreacion;
+    @Column(name = "fecha_creacion")
+    @JsonProperty("fechaCreacion")
+    private LocalDate fechaCreacion;
 
     public Integer getId() {
         return id;
@@ -27,19 +28,19 @@ public class Carrito {
         this.id = id;
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    public Integer getIdCliente() {
+        return idCliente;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
     }
 
-    public Date getFechaCreacion() {
+    public LocalDate getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(Date fechaCreacion) {
+    public void setFechaCreacion(LocalDate fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
 }

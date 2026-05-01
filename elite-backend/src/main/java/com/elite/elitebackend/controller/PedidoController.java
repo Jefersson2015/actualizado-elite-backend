@@ -3,6 +3,7 @@ package com.elite.elitebackend.controller;
 import com.elite.elitebackend.model.*;
 import com.elite.elitebackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class PedidoController {
         return pedidoRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     @PostMapping
     public Pedido crear(@RequestBody PedidoRequest request) {
         System.out.println("=== CREANDO PEDIDO ===");
@@ -64,6 +66,12 @@ public class PedidoController {
             Producto producto = productoRepository.findById(item.getIdProducto())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + item.getIdProducto()));
 
+            // Validación de stock ANTES de descontar
+            if (producto.getStock() < item.getCantidad()) {
+                throw new RuntimeException("Stock insuficiente para: " + producto.getNombre() +
+                        ". Disponible: " + producto.getStock() + ", Solicitado: " + item.getCantidad());
+            }
+
             PedidoDetalle detalle = new PedidoDetalle();
             detalle.setPedido(pedidoGuardado);
             detalle.setProducto(producto);
@@ -73,7 +81,7 @@ public class PedidoController {
 
             detalles.add(detalle);
 
-            // 5. Actualizar stock del producto
+            // Descontar stock
             producto.setStock(producto.getStock() - item.getCantidad());
             productoRepository.save(producto);
             System.out.println("Producto: " + producto.getNombre() + " - Stock actualizado: " + producto.getStock());

@@ -1,52 +1,58 @@
 package com.elite.elitebackend.controller;
 
 import com.elite.elitebackend.model.Usuario;
+import com.elite.elitebackend.model.UsuarioResponse;
 import com.elite.elitebackend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
 public class UsuarioController {
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @GetMapping
-    public List<Usuario> listar() {
-        return usuarioRepository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Usuario buscarPorId(@PathVariable Integer id) {
-        return usuarioRepository.findById(id).orElse(null);
-    }
+    // Instancia del encoder de BCrypt para manejar contraseñas seguras
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping
     public Usuario crear(@RequestBody Usuario usuario) {
+        //  Encriptamos la contraseña antes de persistirla
+        String passwordPlano = usuario.getPassword();
+        usuario.setPassword(passwordEncoder.encode(passwordPlano));
+
         return usuarioRepository.save(usuario);
     }
-
-    @PutMapping("/{id}")
-    public Usuario actualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
-        usuario.setId(id);
-        return usuarioRepository.save(usuario);
-    }
-
     @PostMapping("/login")
-    public Usuario login(@RequestBody Usuario usuario) {
-        // Buscar usuario que coincida con username y password
-        return usuarioRepository.findAll().stream()
-                .filter(u -> u.getUsername().equals(usuario.getUsername())
-                        && u.getPassword().equals(usuario.getPassword()))
-                .findFirst()
-                .orElse(null);
+    public ResponseEntity<?> login(@RequestBody Usuario credenciales) {
+        // Buscamos el usuario por su correo/username
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(credenciales.getUsername());
+
+        // Si el usuario existe, validamos la contraseña con BCrypt
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            // matches() compara el texto plano con el hash almacenado
+            boolean esValida = passwordEncoder.matches(credenciales.getPassword(), usuario.getPassword());
+
+            if (esValida) {
+                // Contraseña correcta: retornamos respuesta segura (sin password)
+                return ResponseEntity.ok(new UsuarioResponse(usuario));
+            }
+        }
+
+        // Retornamos 401 con mensaje de error
+        return ResponseEntity.status(401).body(Map.of("mensaje", "Error en la autenticación"));
     }
 
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Integer id) {
-        usuarioRepository.deleteById(id);
+    @GetMapping
+    public java.util.List<Usuario> listar() {
+        return usuarioRepository.findAll();
     }
 }
