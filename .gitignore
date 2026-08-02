@@ -1,0 +1,13 @@
+# Configuración de IntelliJ (no debe subirse, es local de cada persona)
+.idea/
+*.iml
+
+# Carpetas creadas por Postman al vincular esta carpeta como workspace
+.postman/
+postman/
+
+# Compilados de Maven
+target/
+
+# Archivos del sistema operativo
+.DS_Store
