@@ -1,5 +1,6 @@
 package com.elite.elitebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +11,8 @@ public class Usuario {
     private Integer id;
 
     private String username;
+    // WRITE_ONLY: el backend la acepta al registrar/hacer login, pero nunca la devuelve en las respuestas
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String roll;
 

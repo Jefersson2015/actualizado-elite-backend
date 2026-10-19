@@ -20,6 +20,9 @@ public class Producto {
     @Column(name = "categoria")
     private String categoria;
 
+    @Column(name = "tallas")
+    private String tallas;
+
     public Integer getId() {
         return id;
     }
@@ -74,5 +77,13 @@ public class Producto {
 
     public void setCategoria(String categoria) {
         this.categoria = categoria;
+    }
+
+    public String getTallas() {
+        return tallas;
+    }
+
+    public void setTallas(String tallas) {
+        this.tallas = tallas;
     }
 }

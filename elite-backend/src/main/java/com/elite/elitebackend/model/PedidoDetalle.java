@@ -1,5 +1,6 @@
 package com.elite.elitebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,6 +10,8 @@ public class PedidoDetalle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // WRITE_ONLY: evita que el detalle vuelva a incluir el pedido completo (ciclo infinito en el JSON)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "id_pedido")
     private Pedido pedido;
